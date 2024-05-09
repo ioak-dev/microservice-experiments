@@ -30,20 +30,36 @@ public class ProductController {
     return productservice.getAllProducts();
   }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<Product> getProductById(@PathVariable("id") String id) {
-    Product prod = productservice.getProductById(id);
-    if (prod != null) {
-      return new ResponseEntity<Product>(prod, HttpStatus.FOUND);
-    } else {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  @GetMapping("/{id}/{quantity}")
+  public ResponseEntity<Product> getProductForCart(@PathVariable("id") String id,
+      @PathVariable("quantity") Integer quantity) {
+    Product product = productservice.getProductForCart(id, quantity);
+    return new ResponseEntity<>(product, HttpStatus.FOUND);
+  }
+
+  @GetMapping
+  public ResponseEntity<Product> getProductForOrder(@RequestBody Product product) {
+    return productservice.getProductForOrder(product);
+  }
+
+  @PostMapping("/{id}/{quantity}")
+  public ResponseEntity<Product> deleteProductFromCart(@PathVariable("id") String id,
+      @PathVariable("quantity") Integer quantity) {
+    Product product = productservice.deleteProductFromCart(id, quantity);
+    return new ResponseEntity<>(product, HttpStatus.OK);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public void createProduct(@RequestBody Product productRequest) {
     productservice.createProduct(productRequest);
+  }
+
+  @PostMapping("/{id}")
+  @ResponseStatus(HttpStatus.CREATED)
+  public void addProductToInventory(@PathVariable("id") String id,
+      @RequestBody Integer quantity) {
+    productservice.addProductToInventory(id, quantity);
   }
 
   @PutMapping("/{id}")
