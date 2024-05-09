@@ -4,7 +4,6 @@ import com.example.user.model.User;
 import com.example.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,8 +17,8 @@ public class UserService {
     userRepository.save(user);
   }
 
-  public ResponseEntity<User> getUserById(String id) {
-    return new ResponseEntity<>(userRepository.findById(id).get(), HttpStatus.OK);
+  public User getUserById(String id) {
+    return userRepository.findById(id).get();
   }
 
   public void deleterById(String id) {
