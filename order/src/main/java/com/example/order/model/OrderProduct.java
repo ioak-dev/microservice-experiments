@@ -1,4 +1,4 @@
-package com.example.product.model;
+package com.example.order.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +10,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "product")
+@Document(collection = "orderProduct")
 @Builder
-public class Product {
+public class OrderProduct {
 
   @Id
   private String id;
@@ -22,5 +22,4 @@ public class Product {
   private Integer quantity;
 
   private String category;
-
 }

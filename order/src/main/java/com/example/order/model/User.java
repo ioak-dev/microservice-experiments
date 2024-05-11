@@ -1,7 +1,6 @@
-package com.example.product.model;
+package com.example.order.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -10,17 +9,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "product")
-@Builder
-public class Product {
+@Document(collection = "user")
+public class User {
+
 
   @Id
-  private String id;
-  private String name;
-  private String description;
-  private Float price;
-  private Integer quantity;
+  private String Id;
 
-  private String category;
+  private String name;
+
+  private String address;
+
+  private String phoneNumber;
 
 }

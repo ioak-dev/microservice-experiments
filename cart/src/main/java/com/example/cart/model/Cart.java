@@ -1,5 +1,6 @@
-package com.example.product.model;
+package com.example.cart.model;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,17 +11,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "product")
+@Document(collection = "cart")
 @Builder
-public class Product {
+public class Cart {
 
   @Id
   private String id;
-  private String name;
-  private String description;
-  private Float price;
-  private Integer quantity;
+  private String userId;
+  private List<OrderProduct> products;
 
-  private String category;
 
 }

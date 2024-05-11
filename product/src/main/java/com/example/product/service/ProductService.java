@@ -7,6 +7,7 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,9 +45,16 @@ public class ProductService {
         .build();
   }
 
-  public Product getProductById(String id) {
+  public Product getProductForCart(String id, Integer quantity) {
     Optional<Product> optionalProd = productRepo.findById(id);
-    return optionalProd.map(this::maptoProductResponse).orElse(null);
+    Product product = optionalProd.map(this::maptoProductResponse).orElse(null);
+    assert product != null;
+    if (product.getQuantity()>quantity){
+      product.setQuantity(product.getQuantity()-quantity);
+      productRepo.save(product);
+      return product;
+    }
+    return null;
   }
 
   public void deleteProduct(String id) {
@@ -66,5 +74,34 @@ public class ProductService {
       return productRepo.save(existingProduct);
     }
     return null;
+  }
+
+  public void addProductToInventory(String id, Integer quantity) {
+    if (id != null) {
+      Product existingProduct = productRepo.findById(id).orElseThrow(() ->
+          new ResponseStatusException(HttpStatus.NOT_FOUND));
+      existingProduct.setQuantity(existingProduct.getQuantity()+quantity);
+      productRepo.save(existingProduct);
+    }
+  }
+
+  public Product deleteProductFromCart(String id, Integer quantity) {
+    if (id != null) {
+      Product existingProduct = productRepo.findById(id).orElseThrow(() ->
+          new ResponseStatusException(HttpStatus.NOT_FOUND));
+      existingProduct.setQuantity(existingProduct.getQuantity() + quantity);
+      return productRepo.save(existingProduct);
+    }
+    return null;
+  }
+
+  public ResponseEntity<Product> getProductForOrder( Product product) {
+    if (product != null) {
+      Product productTemp = productRepo.findById(product.getId()).orElseThrow();
+      productTemp.setQuantity(productTemp.getQuantity()-product.getQuantity());
+      productRepo.save(productTemp);
+      return new ResponseEntity<>(product, HttpStatus.OK);
+    }
+    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }
 }
