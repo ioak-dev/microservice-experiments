@@ -21,8 +21,8 @@ public class OrderController {
 
   @PostMapping("/{userId}/{cartId}")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<String> OrderProducts(@PathVariable(value = "cartId", required = false)
-  String cartId, @RequestBody(required = false) OrderProduct orderProduct, @PathVariable("userId") String userId) {
+  public ResponseEntity<String> OrderProducts(@PathVariable
+  String cartId, @RequestBody(required = false) OrderProduct orderProduct, @PathVariable String userId) {
     return orderService.orderProducts(userId, cartId, orderProduct);
   }
 }

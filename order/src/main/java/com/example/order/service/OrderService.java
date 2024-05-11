@@ -38,13 +38,13 @@ public class OrderService {
       productInterface.getProductForOrder(orderProduct);
       orderProducts.add(orderProduct);
       order.setProducts(orderProducts);
-      order.setUser(userInterface.getUser(userId).getBody());
+     // order.setUser(userInterface.getUser(userId).getBody());
       //To do payment MS
       orderRepository.save(order);
       return ResponseEntity.status(HttpStatus.CREATED).body("Order placed successfully");
     }
     if (cartId != null) {
-      order.setUser(userInterface.getUser(userId).getBody());
+     // order.setUser(userInterface.getUser(userId).getBody());
       List<OrderProduct> orderProducts = cartInterface.getProductsFromCart(cartId).getBody();
       order.setProducts(orderProducts);
       //To do payment MS

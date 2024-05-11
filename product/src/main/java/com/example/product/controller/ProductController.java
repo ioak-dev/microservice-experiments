@@ -37,10 +37,10 @@ public class ProductController {
     return new ResponseEntity<>(product, HttpStatus.FOUND);
   }
 
-  @GetMapping
+ /* @GetMapping
   public ResponseEntity<Product> getProductForOrder(@RequestBody Product product) {
     return productservice.getProductForOrder(product);
-  }
+  }*/
 
   @PostMapping("/{id}/{quantity}")
   public ResponseEntity<Product> deleteProductFromCart(@PathVariable("id") String id,
