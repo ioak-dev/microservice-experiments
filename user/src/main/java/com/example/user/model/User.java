@@ -1,20 +1,26 @@
 package com.example.user.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "user")
+@Entity
+@Table(name = "user")
 public class User {
 
 
   @Id
-  private String Id;
+  private String id;
 
   private String name;
 
@@ -22,4 +28,10 @@ public class User {
 
   private String phoneNumber;
 
+  @PrePersist
+  public void prePersist() {
+    if (id == null || id.isEmpty()) {
+      id = UUID.randomUUID().toString();
+    }
+  }
 }

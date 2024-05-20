@@ -1,10 +1,14 @@
 package com.example.order.service;
 
-import com.example.order.feign.CartInterface;
-import com.example.order.feign.ProductInterface;
-import com.example.order.feign.UserInterface;
+import com.example.order.config.UserClient;
 import com.example.order.model.Order;
-import com.example.order.model.OrderProduct;
+import com.example.order.model.OrderRequest;
+import com.example.order.model.OrderStatus;
+import com.example.order.model.Payment;
+import com.example.order.model.PaymentType;
+import com.example.order.model.Product;
+import com.example.order.paymentConfig.PaymentClient;
+import com.example.order.productConfig.ProductClient;
 import com.example.order.repository.OrderRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,35 +26,41 @@ public class OrderService {
   private OrderRepository orderRepository;
 
   @Autowired
-  private ProductInterface productInterface;
+  private ProductClient productInterface;
 
   @Autowired
-  private UserInterface userInterface;
+  private UserClient userClient;
+
 
   @Autowired
-  private CartInterface cartInterface;
+  private PaymentClient paymentClient;
 
-  public ResponseEntity<String> orderProducts(String userId,
-      String cartId, OrderProduct orderProduct) {
+  public ResponseEntity<Order> orderProducts(String userId, String prodId, OrderRequest request) {
     Order order = new Order();
-    if (cartId == null && orderProduct!= null) {
-      List<OrderProduct> orderProducts = new ArrayList<>();
-      productInterface.getProductForOrder(orderProduct);
-      orderProducts.add(orderProduct);
+    if (prodId != null) {
+      List<Product> orderProducts = new ArrayList<>();
+      Product product = productInterface.getProductForOrder(prodId).getBody();
+      orderProducts.add(product);
       order.setProducts(orderProducts);
-     // order.setUser(userInterface.getUser(userId).getBody());
-      //To do payment MS
-      orderRepository.save(order);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Order placed successfully");
+      order.setUser(userClient.getUser(userId).getBody());
+      order.setPaymentType(request.getPaymentType());
+      order.setOrderStatus(OrderStatus.ORDER_INITIATED);
+      order.setQuantity(request.getQuantity());
+      if (request.getPaymentType().equals(PaymentType.COD)) {
+        order.setOrderStatus(OrderStatus.ORDERED_PAYMENT_PENDING);
+      }
+      order.setTotalPrice((int) (request.getQuantity() * product.getPrice()));
+     Order responseOrder= orderRepository.save(order);
+      if(request.getPaymentType().equals(PaymentType.UPI)) {
+        Payment payment = paymentClient.doPaymentForOrder(responseOrder.getId());
+        if (payment != null && payment.getPaymentReferenceNumber() != null) {
+          responseOrder.setOrderStatus(OrderStatus.ORDERED);
+          responseOrder.setPayment(payment);
+          orderRepository.save(responseOrder);
+        }
+      }
+      return ResponseEntity.status(HttpStatus.CREATED).body(order);
     }
-    if (cartId != null) {
-     // order.setUser(userInterface.getUser(userId).getBody());
-      List<OrderProduct> orderProducts = cartInterface.getProductsFromCart(cartId).getBody();
-      order.setProducts(orderProducts);
-      //To do payment MS
-      orderRepository.save(order);
-      return ResponseEntity.status(HttpStatus.CREATED).body("Order placed from cart successfully");
-    }
-    return ResponseEntity.status(HttpStatus.CONFLICT).body("Error occurred");
+    return null;
   }
 }

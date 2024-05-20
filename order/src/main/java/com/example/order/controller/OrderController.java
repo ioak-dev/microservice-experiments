@@ -1,6 +1,7 @@
 package com.example.order.controller;
 
-import com.example.order.model.OrderProduct;
+import com.example.order.model.Order;
+import com.example.order.model.OrderRequest;
 import com.example.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,10 @@ public class OrderController {
   @Autowired
   private OrderService orderService;
 
-  @PostMapping("/{userId}/{cartId}")
+  @PostMapping("/{userId}/{prodId}")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<String> OrderProducts(@PathVariable
-  String cartId, @RequestBody(required = false) OrderProduct orderProduct, @PathVariable String userId) {
-    return orderService.orderProducts(userId, cartId, orderProduct);
+  public ResponseEntity<Order> orderProducts( @PathVariable("prodId") String prodId, @PathVariable("userId") String userId,
+      @RequestBody OrderRequest request) {
+    return orderService.orderProducts(userId, prodId, request);
   }
 }

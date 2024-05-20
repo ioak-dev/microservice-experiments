@@ -24,7 +24,7 @@ public class ProductController {
   @Autowired
   private ProductService productservice;
 
-  @GetMapping
+  @GetMapping("/all")
   @ResponseStatus(HttpStatus.OK)
   public List<Product> getAllProducts() {
     return productservice.getAllProducts();
@@ -32,15 +32,15 @@ public class ProductController {
 
   @GetMapping("/{id}/{quantity}")
   public ResponseEntity<Product> getProductForCart(@PathVariable("id") String id,
-      @PathVariable("quantity") Integer quantity) {
-    Product product = productservice.getProductForCart(id, quantity);
+      @PathVariable("quantity") String quantity) {
+    Product product = productservice.getProductForCart(id, Integer.parseInt(quantity));
     return new ResponseEntity<>(product, HttpStatus.FOUND);
   }
 
- /* @GetMapping
-  public ResponseEntity<Product> getProductForOrder(@RequestBody Product product) {
-    return productservice.getProductForOrder(product);
-  }*/
+  @GetMapping("/{productId}")
+  public ResponseEntity<Product> getProductForOrder(@PathVariable String productId) {
+    return productservice.getProductForOrder(productId);
+  }
 
   @PostMapping("/{id}/{quantity}")
   public ResponseEntity<Product> deleteProductFromCart(@PathVariable("id") String id,
@@ -51,8 +51,8 @@ public class ProductController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void createProduct(@RequestBody Product productRequest) {
-    productservice.createProduct(productRequest);
+  public Product createProduct(@RequestBody Product productRequest) {
+   return productservice.createProduct(productRequest);
   }
 
   @PostMapping("/{id}")

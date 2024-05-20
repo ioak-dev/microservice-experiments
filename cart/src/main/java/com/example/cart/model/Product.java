@@ -1,19 +1,14 @@
 package com.example.cart.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
 @AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Builder
-public class OrderProduct {
+public class Product {
 
-  @Id
   private String id;
   private String name;
   private String description;
@@ -21,4 +16,5 @@ public class OrderProduct {
   private Integer quantity;
 
   private String category;
+
 }

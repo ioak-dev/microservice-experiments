@@ -14,12 +14,19 @@ public class UserService {
   @Autowired
   private UserRepository userRepository;
 
-  public void saveUser(User user) {
-    userRepository.save(user);
+ /* @Autowired
+  private MongoTemplate mongoTemplate;*/
+
+  public User saveUser(User user) {
+    return userRepository.save(user);
   }
 
   public ResponseEntity<User> getUserById(String id) {
-    return new ResponseEntity<>(userRepository.findById(id).get(), HttpStatus.OK);
+//    Query query=new Query(Criteria.where("id").is(id));
+//   User user= mongoTemplate.findOne(query,User.class);
+    User user=userRepository.findById(id).orElseThrow(()->
+        new ResponseStatusException(HttpStatus.NOT_FOUND));
+    return new ResponseEntity<>(user, HttpStatus.OK);
   }
 
   public void deleterById(String id) {

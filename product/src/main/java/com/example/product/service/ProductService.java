@@ -18,17 +18,19 @@ public class ProductService {
   @Autowired
   private ProductRepository productRepo;
 
-  public void createProduct(Product productRequest) {
+  public Product createProduct(Product productRequest) {
     Product product = Product
         .builder()
         .name(productRequest.getName())
         .description(productRequest.getDescription())
         .price(productRequest.getPrice())
         .category(productRequest.getCategory())
+        .quantity(productRequest.getQuantity())
         .build();
 
-    productRepo.save(product);
+    Product productResponse = productRepo.save(product);
     log.info("Product {} is saved !!", product.getId());
+    return productResponse;
   }
 
   public List<Product> getAllProducts() {
@@ -42,6 +44,7 @@ public class ProductService {
         .name(product.getName())
         .price(product.getPrice())
         .category(product.getCategory())
+        .quantity(product.getQuantity())
         .build();
   }
 
@@ -49,8 +52,8 @@ public class ProductService {
     Optional<Product> optionalProd = productRepo.findById(id);
     Product product = optionalProd.map(this::maptoProductResponse).orElse(null);
     assert product != null;
-    if (product.getQuantity()>quantity){
-      product.setQuantity(product.getQuantity()-quantity);
+    if (product.getQuantity() > quantity) {
+      product.setQuantity(product.getQuantity() - quantity);
       productRepo.save(product);
       return product;
     }
@@ -80,7 +83,7 @@ public class ProductService {
     if (id != null) {
       Product existingProduct = productRepo.findById(id).orElseThrow(() ->
           new ResponseStatusException(HttpStatus.NOT_FOUND));
-      existingProduct.setQuantity(existingProduct.getQuantity()+quantity);
+      existingProduct.setQuantity(existingProduct.getQuantity() + quantity);
       productRepo.save(existingProduct);
     }
   }
@@ -95,12 +98,10 @@ public class ProductService {
     return null;
   }
 
-  public ResponseEntity<Product> getProductForOrder( Product product) {
-    if (product != null) {
-      Product productTemp = productRepo.findById(product.getId()).orElseThrow();
-      productTemp.setQuantity(productTemp.getQuantity()-product.getQuantity());
-      productRepo.save(productTemp);
-      return new ResponseEntity<>(product, HttpStatus.OK);
+  public ResponseEntity<Product> getProductForOrder(String id) {
+    if (id != null) {
+      Product productTemp = productRepo.findById(id).orElseThrow();
+      return new ResponseEntity<>(productTemp, HttpStatus.OK);
     }
     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
   }

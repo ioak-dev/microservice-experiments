@@ -11,12 +11,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "cart")
+@Document(collection = "order")
 @Builder
 public class Order {
 
   @Id
   private String id;
   private User user;
-  private List<OrderProduct> products;
+  private List<Product> products;
+
+  private OrderStatus orderStatus;
+
+  private PaymentType paymentType;
+
+  private Integer quantity;
+
+  private Integer totalPrice;
+
+  private Payment payment;
 }
