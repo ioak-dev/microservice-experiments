@@ -64,7 +64,6 @@ public class ProductController {
 
   @PutMapping("/{id}")
   public Product updateProduct(@PathVariable("id") String id, @RequestBody Product productRequest) {
-
     return productservice.updateProduct(id, productRequest);
   }
 
