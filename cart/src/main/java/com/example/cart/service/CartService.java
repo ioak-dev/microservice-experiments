@@ -1,6 +1,7 @@
 package com.example.cart.service;
 
 import com.example.cart.config.UserClient;
+import com.example.cart.controller.CartController;
 import com.example.cart.model.Cart;
 import com.example.cart.model.OrderRequest;
 import com.example.cart.model.Product;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-@Slf4j
 public class CartService {
+
+  private static final Logger LOG = LogManager.getLogger(CartService.class);
 
   @Autowired
   private CartRepository cartRepository;
@@ -47,10 +51,12 @@ public class CartService {
     if(cart==null){
       cart=new Cart();
     }
+    LOG.info("Get all the products from cart : {}", id);
     List<Product> orderProducts = productClient.getAllProducts();
     Optional<Product> orderProduct = orderProducts.stream()
         .filter(ids -> ids.getId().equals(productId)).findFirst();
     if (!orderProduct.isPresent()) {
+       LOG.error("Product : {}, not found in the cart : {}", productId,id);
        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     List<Product> orderProductList = new ArrayList<>();
@@ -65,6 +71,7 @@ public class CartService {
     cart.setUserCartId(userCart.getCartId());
     cart.setProducts(orderProductList);
     cartRepository.save(cart);
+    LOG.info("Product added to the cart");
     return ResponseEntity.status(HttpStatus.CREATED).body(cart);
   }
 
@@ -81,6 +88,7 @@ public class CartService {
       cart.setProducts(newProdList);
       cartRepository.save(cart);
     }
+    LOG.info("Removed the product : {} , from the cart : {}", productId,id);
     return ResponseEntity.status(HttpStatus.OK).body(cart);
   }
 
@@ -104,6 +112,7 @@ public class CartService {
   public void createCartForUser(String userId) {
     User user = userClient.getUser(userId).getBody();
     if (user == null) {
+      LOG.error("User is not present with : {}", userId);
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     UserCart userCart = UserCart.builder()

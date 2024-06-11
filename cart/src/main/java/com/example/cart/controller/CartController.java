@@ -5,6 +5,8 @@ import com.example.cart.model.OrderRequest;
 import com.example.cart.model.Product;
 import com.example.cart.service.CartService;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,34 +20,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/cart")
 public class CartController {
 
+  private static final Logger LOG = LogManager.getLogger(CartController.class);
+
   @Autowired
   private CartService cartService;
 
   @PostMapping("/{id}/add/{productId}/{quantity}")
   public ResponseEntity<Cart> addProductToCart(@PathVariable("id") String id,
       @PathVariable("productId") String productId, @PathVariable("quantity") Integer quantity) {
+    LOG.info("Add the product:{} to cart :{}", productId,id);
     return cartService.addProductToCart(id,productId, quantity);
   }
 
   @PostMapping("/{id}/remove/{productId}")
   public ResponseEntity<Cart> removeProductFromCart(@PathVariable("id") String id,
       @PathVariable("productId") String productId) {
+    LOG.info("Remove the product:{} from cart :{}", productId,id);
     return cartService.removeProductFromCart(id,productId);
   }
 
   @PostMapping("/{id}/order/{userId}/{prodId}")
   public void orderFromCart(@PathVariable("id") String id, @PathVariable("userId") String userId
   ,@PathVariable("prodId") String prodId,@RequestBody OrderRequest orderRequest) {
+    LOG.info("Order the item : {} ,from cart : {}",prodId,id);
     cartService.orderFromCart(id, userId,prodId, orderRequest);
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<List<Product>> getProductsFromCart(@PathVariable("id") String id) {
+    LOG.info("Retrieve all the products from cart : {}", id);
     return cartService.getProductsFromCart(id);
   }
 
   @PostMapping("/{userId}")
   public void createCartForUserId(@PathVariable String userId){
+    LOG.info("Creating cart for user : {}",userId);
     cartService.createCartForUser(userId);
   }
 }

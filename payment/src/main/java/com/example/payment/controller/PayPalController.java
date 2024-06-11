@@ -5,6 +5,8 @@ import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.view.RedirectView;
 @RestController
-@Slf4j
 public class PayPalController {
+
+
+  private static final Logger LOG = LogManager.getLogger(PayPalController.class);
 
   @Autowired
   PaymentService service;
@@ -50,7 +54,7 @@ public class PayPalController {
         }
       }
     } catch (PayPalRESTException e) {
-      log.error("Error occurred:: ", e);
+      LOG.error("Error occurred:: ", e);
     }
     return new RedirectView("/payment/error");
   }
@@ -66,7 +70,7 @@ public class PayPalController {
         return "paymentSuccess";
       }
     } catch (PayPalRESTException e) {
-      log.error("Error occurred:: ", e);
+      LOG.error("Error occurred:: ", e);
     }
     return "paymentSuccess";
   }

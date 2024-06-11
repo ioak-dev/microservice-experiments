@@ -1,10 +1,13 @@
 package com.example.product.service;
 
+import com.example.product.controller.ProductController;
 import com.example.product.model.Product;
 import com.example.product.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-@Slf4j
 public class ProductService {
+
+  private static final Logger LOG = LogManager.getLogger(ProductService.class);
 
   @Autowired
   private ProductRepository productRepo;
@@ -29,7 +33,7 @@ public class ProductService {
         .build();
 
     Product productResponse = productRepo.save(product);
-    log.info("Product {} is saved !!", product.getId());
+    LOG.info("Product {} is saved !!", product.getId());
     return productResponse;
   }
 
@@ -38,6 +42,7 @@ public class ProductService {
   }
 
   private Product maptoProductResponse(Product product) {
+    LOG.info("Map fields to domain fields");
     return Product.builder()
         .id(product.getId())
         .description(product.getDescription())

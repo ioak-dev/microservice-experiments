@@ -1,0 +1,52 @@
+<configuration>
+  <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+  <property name="LOG_LEVEL_PATTERN" value="[${springAppName},%X{X-B3-TraceId:-},%X{X-B3-SpanId:-},%X{X-Span-Export:-}]" />
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+
+  <!-- You can override this to have a custom pattern -->
+  <property name="CONSOLE_LOG_PATTERN"
+    value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+  <!-- Appender to log to console -->
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>DEBUG</level>
+    </filter>
+    <encoder>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+      <charset>utf8</charset>
+    </encoder>
+  </appender>
+
+  <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    <destination>localhost:5000</destination>
+
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+      <providers>
+        <mdc />
+        <context />
+        <logLevel />
+        <loggerName />
+
+        <pattern>
+          <pattern>
+            {
+            "serviceName": "product"
+            }
+          </pattern>
+        </pattern>
+
+        <threadName />
+        <message />
+        <logstashMarkers />
+        <stackTrace />
+      </providers>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="console"/>
+    <appender-ref ref="STASH"/>
+  </root>
+</configuration>

@@ -6,8 +6,12 @@ import com.example.review.model.Review;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ReviewController {
+
+  private static final Logger LOG = LogManager.getLogger(ReviewController.class);
   private final ReviewDao reviewDao;
 
   public ReviewController(Vertx vertx) {
@@ -16,6 +20,7 @@ public class ReviewController {
 
   public Promise<Response> getAllReviews() {
     Promise<Response> promise = Promise.promise();
+    LOG.info("Get all reviews from the database");
     Response response = new Response();
     reviewDao.getAllReviews()
       .onSuccess(reviews -> {

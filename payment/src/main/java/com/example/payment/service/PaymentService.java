@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -29,8 +31,13 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class PaymentService {
 
+  private static final Logger LOG = LogManager.getLogger(PaymentService.class);
+
   @Autowired
   private APIContext apiContext;
+
+  @Autowired
+  PaymentRepository paymentRepository;
 
 
   public Payment createPayment(
@@ -41,6 +48,8 @@ public class PaymentService {
       String description,
       String cancelUrl,
       String successUrl) throws PayPalRESTException {
+
+    LOG.info("Creating payment object");
     Amount amount = new Amount();
     amount.setCurrency(currency);
     amount.setTotal(String.format(Locale.forLanguageTag(currency), "%.2f", total));
@@ -74,12 +83,10 @@ public class PaymentService {
     return payment.execute(apiContext, paymentExecute);
   }
 
-  @Autowired
-  PaymentRepository paymentRepository;
-
 
   public com.example.payment.model.Payment doPaymentForOrder(String orderId) {
     try {
+      LOG.info("Execute payment for the order : {}" ,orderId);
       Resource resource = new ClassPathResource("classpath:/PayPalResponse.json");
       String content = resource.getContentAsString(StandardCharsets.UTF_8);
       ObjectMapper objectMapper = new ObjectMapper();
@@ -100,6 +107,7 @@ public class PaymentService {
           .build();
       return paymentRepository.save(payment);
     } catch (Exception e) {
+      LOG.error(e.getMessage());
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

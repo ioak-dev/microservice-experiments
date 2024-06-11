@@ -44,6 +44,7 @@ public class ReviewDao {
   public Future<List<Review>> getAllReviews() {
     Promise<List<Review>> promise = Promise.promise();
     List<Review> reviews = new ArrayList<>();
+    vertx.setTimer(60000, id -> promise.complete());
     pool.preparedQuery(queriesBundle.getString("GETALL"))
       .execute().onSuccess(rows -> {
         for (Row row : rows) {
@@ -61,10 +62,12 @@ public class ReviewDao {
   }
 
   public Future<List<Review>> updateReview(String id, Review review) {
+    LOGGER.info("Updating the review for the product : {}"+review.getProductId());
     Promise<List<Review>> promise = Promise.promise();
     List<Review> reviews = new ArrayList<>();
     pool.preparedQuery(queriesBundle.getString("UPDATE_REVIEW"))
-      .execute(Tuple.of(review.getReviewDescription(), review.getRatings(), review.getProductId(), review.getUserId(), id))
+      .execute(Tuple.of(review.getReviewDescription(), review.getRatings(), review.getProductId(),
+        review.getUserId(), id))
       .onSuccess(rows -> {
         for (Row row : rows) {
           Review updatedReview = new Review();
@@ -85,14 +88,16 @@ public class ReviewDao {
   }
 
   public Future<List<Review>> insertReview(Review reviewRequest) {
+    LOGGER.info("Insert review for product : {}" + reviewRequest.getProductId());
     Promise<List<Review>> promise = Promise.promise();
     List<Review> reviews = new ArrayList<>();
     String userId = reviewRequest.getUserId();
     String productId = reviewRequest.getProductId();
     Promise<Void> userPromise = Promise.promise();
     Promise<Void> productPromise = Promise.promise();
-    checkUserExists(userId,userPromise);
-    checkProductExists(productId,productPromise);
+    vertx.setTimer(60000, id -> promise.complete());
+    checkUserExists(userId, userPromise);
+    checkProductExists(productId, productPromise);
     CompositeFuture.all(userPromise.future(), productPromise.future()).onComplete(ar -> {
       if (ar.succeeded()) {
         pool.preparedQuery(queriesBundle.getString("INERT_REVIEW"))
@@ -112,11 +117,11 @@ public class ReviewDao {
             promise.tryComplete(reviews);
           }).onFailure(Throwable::printStackTrace);
       }
-      });
+    });
     return promise.future();
   }
 
-  private void checkUserExists(String userId,Promise<Void> userPromise){
+  private void checkUserExists(String userId, Promise<Void> userPromise) {
     client.get("/api/user/" + userId)
       .send(ar -> {
         if (ar.succeeded()) {
@@ -125,7 +130,7 @@ public class ReviewDao {
           LOGGER.info("Response body: " + response.bodyAsString());
           if (response.statusCode() != 200) {
             userPromise.fail("User not found");
-          }else{
+          } else {
             userPromise.complete();
           }
         } else {
@@ -134,7 +139,7 @@ public class ReviewDao {
       });
   }
 
-  private void checkProductExists(String productId,Promise<Void> productPromise ){
+  private void checkProductExists(String productId, Promise<Void> productPromise) {
     client.get("/api/product/" + productId)
       .send(ar -> {
         if (ar.succeeded()) {
@@ -143,7 +148,7 @@ public class ReviewDao {
           LOGGER.info("Response body: " + response.bodyAsString());
           if (response.statusCode() != 200) {
             productPromise.fail("User not found");
-          }else {
+          } else {
             productPromise.complete();
           }
         } else {
@@ -153,6 +158,7 @@ public class ReviewDao {
   }
 
   private MySQLConnectOptions getSqlConnectionOptions() {
+    LOGGER.info("Creating connection pool");
     MySQLConnectOptions connectOptions = new MySQLConnectOptions()
       .setHost("localhost")
       .setDatabase(propertiesBundle.getString("app.database"))

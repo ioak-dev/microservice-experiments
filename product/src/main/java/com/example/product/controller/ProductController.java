@@ -3,6 +3,8 @@ package com.example.product.controller;
 import com.example.product.model.Product;
 import com.example.product.service.ProductService;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,24 +23,29 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/product")
 public class ProductController {
 
+
+  private static final Logger LOG = LogManager.getLogger(ProductController.class);
   @Autowired
   private ProductService productservice;
 
   @GetMapping("/all")
   @ResponseStatus(HttpStatus.OK)
   public List<Product> getAllProducts() {
+    LOG.info("Get all products from the db");
     return productservice.getAllProducts();
   }
 
   @GetMapping("/{id}/{quantity}")
   public ResponseEntity<Product> getProductForCart(@PathVariable("id") String id,
       @PathVariable("quantity") String quantity) {
+    LOG.info("Get products from the db : {}", id);
     Product product = productservice.getProductForCart(id, Integer.parseInt(quantity));
     return new ResponseEntity<>(product, HttpStatus.FOUND);
   }
 
   @GetMapping("/{productId}")
   public ResponseEntity<Product> getProductForOrder(@PathVariable String productId) {
+    LOG.info("Retrieving the product from database: {}" , productId);
     return productservice.getProductForOrder(productId);
   }
 
@@ -52,7 +59,8 @@ public class ProductController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public Product createProduct(@RequestBody Product productRequest) {
-   return productservice.createProduct(productRequest);
+    LOG.info("Creating product");
+    return productservice.createProduct(productRequest);
   }
 
   @PostMapping("/{id}")
