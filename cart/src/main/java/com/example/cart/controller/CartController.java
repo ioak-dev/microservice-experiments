@@ -3,7 +3,11 @@ package com.example.cart.controller;
 import com.example.cart.model.Cart;
 import com.example.cart.model.OrderRequest;
 import com.example.cart.model.Product;
+import com.example.cart.repository.CartRepository;
 import com.example.cart.service.CartService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import jakarta.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +25,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartController {
 
   private static final Logger LOG = LogManager.getLogger(CartController.class);
+
+  private List<Cart> cartList=new ArrayList<>();
+
+  @Autowired
+  private CartRepository cartRepository;
+
+  @PostConstruct
+  public void addProductToList(){
+    cartList.addAll(cartRepository.findAll());
+  }
 
   @Autowired
   private CartService cartService;
@@ -47,9 +61,19 @@ public class CartController {
   }
 
   @GetMapping("/{id}")
+  @CircuitBreaker(name = "cartService", fallbackMethod = "displayProductsFromCart")
   public ResponseEntity<List<Product>> getProductsFromCart(@PathVariable("id") String id) {
     LOG.info("Retrieve all the products from cart : {}", id);
     return cartService.getProductsFromCart(id);
+  }
+
+  public ResponseEntity<List<Product>> displayProductsFromCart(String id,Exception e){
+    List<Product> productList= new ArrayList<>();
+    System.out.println(cartList);
+    cartList.stream().filter(cart -> cart.getId().equals(id))
+        .forEach(products->
+        productList.addAll(products.getProducts()));
+    return ResponseEntity.ok(productList);
   }
 
   @PostMapping("/{userId}")
