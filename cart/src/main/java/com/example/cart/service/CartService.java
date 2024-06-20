@@ -15,15 +15,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Slf4j
 public class CartService {
+
+  private static final Logger LOG = LogManager.getLogger(CartService.class);
 
   @Autowired
   private CartRepository cartRepository;
@@ -40,17 +47,23 @@ public class CartService {
   @Autowired
   private UserCartRepository userCartRepository;
 
-  public ResponseEntity<Cart> addProductToCart(String id, String productId, Integer quantity) {
+  @Retryable(retryFor = { ResponseStatusException.class }, backoff = @Backoff(delay = 4000), maxAttempts = 4,
+      recover = "recoverUserCartNotFound")
+  public ResponseEntity<Cart> addProductToCart(String id, String productId, Integer quantity)
+      throws ResponseStatusException {
+    log.info("Adding product to Cart");
     UserCart userCart = userCartRepository.findById(id).orElseThrow(() ->
         new ResponseStatusException(HttpStatus.NOT_FOUND));
     Cart cart = cartRepository.findByUserCartId(id);
     if(cart==null){
       cart=new Cart();
     }
+    LOG.info("Get all the products from cart : {}", id);
     List<Product> orderProducts = productClient.getAllProducts();
     Optional<Product> orderProduct = orderProducts.stream()
         .filter(ids -> ids.getId().equals(productId)).findFirst();
     if (!orderProduct.isPresent()) {
+       LOG.error("Product : {}, not found in the cart : {}", productId,id);
        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     List<Product> orderProductList = new ArrayList<>();
@@ -65,7 +78,14 @@ public class CartService {
     cart.setUserCartId(userCart.getCartId());
     cart.setProducts(orderProductList);
     cartRepository.save(cart);
+    LOG.info("Product added to the cart");
     return ResponseEntity.status(HttpStatus.CREATED).body(cart);
+  }
+
+  @Recover
+  public ResponseEntity<String> recoverUserCartNotFound(ResponseStatusException e, String id, String productId) {
+    LOG.error("Failed to add product to cart for user id: {} and product id: {} after retries", id, productId, e);
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Service is temporarily unavailable. Please try again later.");
   }
 
   public ResponseEntity<Cart> removeProductFromCart(String id, String productId) {
@@ -81,6 +101,7 @@ public class CartService {
       cart.setProducts(newProdList);
       cartRepository.save(cart);
     }
+    LOG.info("Removed the product : {} , from the cart : {}", productId,id);
     return ResponseEntity.status(HttpStatus.OK).body(cart);
   }
 
@@ -104,6 +125,7 @@ public class CartService {
   public void createCartForUser(String userId) {
     User user = userClient.getUser(userId).getBody();
     if (user == null) {
+      LOG.error("User is not present with : {}", userId);
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     UserCart userCart = UserCart.builder()
