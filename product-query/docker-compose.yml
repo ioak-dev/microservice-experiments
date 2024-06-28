@@ -1,0 +1,22 @@
+version: '3.5'
+services:
+
+    product-query:
+        container_name: product-query
+        restart: always
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        environment:
+            eureka.client.serviceUrl.defaultZone: http://eureka-server.docker:8761/
+        ports:
+            - 8083:8083
+        networks:
+            ms-net:
+                aliases:
+                    - product-query.docker
+
+
+networks:
+    ms-net:
+        external: true
