@@ -1,0 +1,22 @@
+version: '3.5'
+services:
+    payment:
+        container_name: payment
+        restart: always
+        environment:
+            MONGODB_DB: shopping-payment
+            MONGODB_URI: mongodb://mongo.docker:27017
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        ports:
+            - 9090:9090
+        networks:
+            ms-net:
+                aliases:
+                    - payment.docker
+
+
+networks:
+    ms-net:
+        external: true
