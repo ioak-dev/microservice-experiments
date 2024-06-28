@@ -1,0 +1,22 @@
+version: '3.5'
+services:
+
+    order:
+        container_name: order
+        restart: always
+        environment:
+            MONGODB_DB: shopping-order
+            MONGODB_URI: mongodb://mongo.docker:27017
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        ports:
+            - "8085:8085"
+        networks:
+          ms-net:
+            aliases:
+              - order.docker
+
+networks:
+  ms-net:
+    external: true
