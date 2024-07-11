@@ -23,8 +23,5 @@ COPY build/libs/user-*.jar /opt/app.jar
 # Expose the port that the application will run on
 EXPOSE 8084
 
-ENV MYSQL_URI jdbc:mariadb://mariadb.docker:3306
-ENV MYSQL_DATABASE user
-
 # Define the entry point for the container
 ENTRYPOINT ["java", "-jar", "/opt/app.jar"]

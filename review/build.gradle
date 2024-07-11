@@ -1,0 +1,81 @@
+import org.gradle.api.tasks.testing.Test
+
+buildscript {
+  repositories {
+    mavenCentral()
+    gradlePluginPortal()
+  }
+  dependencies {
+    classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+  }
+}
+
+plugins {
+  id 'java'
+  id 'application'
+  id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group = 'com.example'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+  mavenCentral()
+}
+
+def vertxVersion = '4.5.7'
+def junitJupiterVersion = '5.9.1'
+
+def mainVerticleName = 'com.example.review.MainVerticle'
+def launcherClassName = 'io.vertx.core.Launcher'
+
+def watchForChange = 'src/**/*'
+def doOnChange = "${projectDir}/gradlew classes"
+
+application {
+  mainClassName = launcherClassName
+}
+
+dependencies {
+  implementation platform("io.vertx:vertx-stack-depchain:$vertxVersion")
+  implementation 'io.vertx:vertx-web-client'
+  implementation 'io.vertx:vertx-zipkin'
+  implementation 'io.vertx:vertx-web'
+  implementation 'io.vertx:vertx-service-discovery'
+  testImplementation 'io.vertx:vertx-junit5'
+  implementation 'io.vertx:vertx-mysql-client'
+  runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
+  implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+  implementation 'com.google.guava:guava:30.1.1-jre'
+  testImplementation "org.junit.jupiter:junit-jupiter:$junitJupiterVersion"
+}
+
+tasks.named('test') {
+  useJUnitPlatform()
+  environment 'SPRING_DATASOURCE_URL','jdbc:mariadb://localhost:3306/review'
+  environment 'SPRING_DATASOURCE_USERNAME', 'root'
+  environment 'SPRING_DATASOURCE_PASSWORD', 'root'
+  environment 'SPRING_DATASOURCE_DRIVER_CLASS_NAME', 'org.mariadb.jdbc.Driver'
+  environment 'SPRING_JPA_HIBERNATE_DDL_AUTO', 'update'
+  environment 'SPRING_JPA_SHOW_SQL','true'
+}
+
+tasks.withType(Test) {
+  environment 'SPRING_DATASOURCE_URL', 'jdbc:mariadb://localhost:3306/review'
+  environment 'SPRING_DATASOURCE_USERNAME', 'root'
+  environment 'SPRING_DATASOURCE_PASSWORD', 'root'
+  environment 'SPRING_DATASOURCE_DRIVER_CLASS_NAME', 'org.mariadb.jdbc.Driver'
+  environment 'SPRING_JPA_HIBERNATE_DDL_AUTO', 'update'
+  environment 'SPRING_JPA_SHOW_SQL','true'
+}
+
+mainClassName = 'com.example.MainVerticle'
+
+application {
+  mainClassName = 'com.example.MainVerticle'
+}
+
+
+
+

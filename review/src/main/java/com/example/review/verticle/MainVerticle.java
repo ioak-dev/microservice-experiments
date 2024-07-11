@@ -29,7 +29,7 @@ public class MainVerticle extends AbstractVerticle {
     router = Router.router(vertx);
     router.route().handler(BodyHandler.create(false));
 
-    router.post("/api/add/review").produces(CONTENT_TYPE)
+    router.post("/api/review/add").produces(CONTENT_TYPE)
       .handler(routingContext -> {
         JsonObject jsonObject = new JsonObject();
         Review user = Json.decodeValue(routingContext.body().buffer(), Review.class);
@@ -45,12 +45,12 @@ public class MainVerticle extends AbstractVerticle {
           .end(jsonObject.encode());
       });
 
-    router.get("/api/get/reviews").produces(CONTENT_TYPE)
+    router.get("/api/reviews/getall").produces(CONTENT_TYPE)
       .handler(routingContext -> {
         reviewController.getAllReviews().future().onSuccess(resp -> response(routingContext, resp));
       });
 
-    router.put("/api/update/review/:id").produces(CONTENT_TYPE)
+    router.put("/api/review/update/:id").produces(CONTENT_TYPE)
       .handler(routingContext->{
         String id=routingContext.request().getParam("id");
         Review review = Json.decodeValue(routingContext.body().buffer(), Review.class);

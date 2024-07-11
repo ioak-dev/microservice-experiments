@@ -13,7 +13,7 @@ public class OrderClientConfig {
   @Bean
   public WebClient orderWebClient() {
     return WebClient.builder()
-        .baseUrl("http://localhost:8085")
+        .baseUrl("http://order-service:8085")
         .build();
   }
 

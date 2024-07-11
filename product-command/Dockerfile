@@ -22,6 +22,10 @@ WORKDIR /app
 # Copy the Spring Boot application JAR file into the container
 COPY build/libs/product-*.jar /opt/app.jar
 
+ENV MONGODB_URI mongodb://localhost:27017
+ENV MONGODB_DB shopping-cart
+ENV KAFKA_SERVER kafka:9092
+
 # Expose the port that the application will run on
 EXPOSE 8088
 

@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.Test
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.2'
@@ -38,4 +40,11 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	environment 'Eureka_Server','http://localhost:8761'
+	environment 'Eureka_Web','http://localhost:8761'
+}
+
+tasks.withType(Test) {
+	environment 'Eureka_Server','http://localhost:8761'
+	environment 'Eureka_Web','http://localhost:8761'
 }

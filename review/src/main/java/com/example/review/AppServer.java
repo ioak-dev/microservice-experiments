@@ -12,7 +12,9 @@ public class AppServer {
     Vertx vertx= Vertx.vertx();
     vertx.deployVerticle(MainVerticle.class.getName())
       .onFailure(throwable ->
-        LOGGER.error("Error while starting Main verticle", throwable));
+      LOGGER.error("Error while starting Main verticle", throwable));
+//    vertx.deployVerticle(EurekaVerticle.class.getName())
+//      .onFailure(throwable->LOGGER.error("Error while starting eureka",throwable));
   }
 
 }

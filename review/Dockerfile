@@ -3,8 +3,6 @@ FROM debian:buster-slim as packager
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
-    curl \
-    telnet \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -20,16 +18,10 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 WORKDIR /app
 
 # Copy the Spring Boot application JAR file into the container
-COPY build/libs/product-*.jar /opt/app.jar
-
-
-ENV MONGODB_URI mongodb://localhost:27017
-ENV MONGODB_DB shopping-cart
-ENV KAFKA_SERVER kafka:9092
+COPY build/libs/review-*.jar /opt/app.jar
 
 # Expose the port that the application will run on
-EXPOSE 8083
-
+EXPOSE 8082
 
 # Define the entry point for the container
 ENTRYPOINT ["java", "-jar", "/opt/app.jar"]

@@ -55,4 +55,11 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	environment 'MONGODB_URI', 'mongodb://localhost:27017'
+	environment 'MONGODB_DB', 'shopping-payment'
+}
+
+tasks.withType(Test) {
+	environment 'MONGODB_URI', 'mongodb://localhost:27017'
+	environment 'MONGODB_DB', 'shopping-payment'
 }

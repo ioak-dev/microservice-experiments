@@ -7,6 +7,7 @@ import com.example.cart.repository.CartRepository;
 import com.example.cart.service.CartService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.annotation.PostConstruct;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -80,5 +81,10 @@ public class CartController {
   public void createCartForUserId(@PathVariable String userId){
     LOG.info("Creating cart for user : {}",userId);
     cartService.createCartForUser(userId);
+  }
+
+  @GetMapping("/hello")
+  public String testDocker(){
+    return "Hello Docker " + ZonedDateTime.now();
   }
 }

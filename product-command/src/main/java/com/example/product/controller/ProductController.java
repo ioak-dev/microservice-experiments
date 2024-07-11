@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/product/command")
 public class ProductController {
 
   @Autowired

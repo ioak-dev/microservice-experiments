@@ -12,7 +12,7 @@ public class PaymentClientConfig {
   @Bean
   public WebClient paymentWebClient() {
     return WebClient.builder()
-        .baseUrl("http://localhost:9090")
+        .baseUrl("http://payment-service:9090")
         .build();
   }
 

@@ -12,7 +12,7 @@ public class WebclientConfig {
   @Bean
   public WebClient userWebClient() {
     return WebClient.builder()
-        .baseUrl("http://localhost:8084")
+        .baseUrl("http://user-service:8084")
         .build();
   }
 

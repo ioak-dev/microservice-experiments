@@ -54,4 +54,19 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	environment 'SPRING_DATASOURCE_URL','jdbc:mariadb://localhost:3306/user'
+	environment 'SPRING_DATASOURCE_USERNAME', 'root'
+	environment 'SPRING_DATASOURCE_PASSWORD', 'root'
+	environment 'SPRING_DATASOURCE_DRIVER_CLASS_NAME', 'org.mariadb.jdbc.Driver'
+	environment 'SPRING_JPA_HIBERNATE_DDL_AUTO', 'update'
+    environment 'SPRING_JPA_SHOW_SQL','true'
+}
+
+tasks.withType(Test) {
+    environment 'SPRING_DATASOURCE_URL', 'jdbc:mariadb://localhost:3306/user'
+    environment 'SPRING_DATASOURCE_USERNAME', 'root'
+    environment 'SPRING_DATASOURCE_PASSWORD', 'root'
+    environment 'SPRING_DATASOURCE_DRIVER_CLASS_NAME', 'org.mariadb.jdbc.Driver'
+    environment 'SPRING_JPA_HIBERNATE_DDL_AUTO', 'update'
+    environment 'SPRING_JPA_SHOW_SQL','true'
 }
