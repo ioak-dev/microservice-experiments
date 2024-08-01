@@ -4,6 +4,8 @@ package com.example.user.controller;
 import com.example.user.model.RegisterRequest;
 import com.example.user.model.RegisterResponse;
 import com.example.user.service.UserService;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,9 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserAuthController {
 
-
   @Autowired
-
   private UserService userService;
 
 
@@ -35,10 +35,19 @@ public class UserAuthController {
   public ResponseEntity<?> verifyUser(@RequestParam String email,@RequestParam String otp){
     try {
       userService.verify(email, otp);
-      return new ResponseEntity<>("User verified successfully",HttpStatus.OK);
+      Map<String,String> stringMap=new HashMap<>();
+      stringMap.put("message","User verified successfully");
+      return new ResponseEntity<>(stringMap,HttpStatus.OK);
     }catch (RuntimeException e){
       return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<?> loginUser(@RequestBody RegisterRequest registerRequest){
+    return new ResponseEntity<>(userService.loginUser(registerRequest),HttpStatus.OK);
   }
 
 }

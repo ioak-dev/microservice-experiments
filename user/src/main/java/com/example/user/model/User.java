@@ -8,6 +8,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "user")
 public class User {
 
@@ -28,6 +30,10 @@ public class User {
 
   private String phoneNumber;
 
+  private String email;
+  private String password;
+  private String otp;
+  private boolean verified;
   @PrePersist
   public void prePersist() {
     if (id == null || id.isEmpty()) {

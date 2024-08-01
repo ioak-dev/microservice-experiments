@@ -75,6 +75,7 @@ public class SecurityConfig {
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(clientRegistration());
     }
+
     private ClientRegistration clientRegistration() {
         return ClientRegistration.withRegistrationId("my-client")
             .clientId("1080184469568-apl20tffhv0fthvevi6uh44bqlj7ambk.apps.googleusercontent.com")
