@@ -14,7 +14,7 @@ async function exchangeCodeForToken( code) {
             code: code,
             client_id: "1080184469568-apl20tffhv0fthvevi6uh44bqlj7ambk.apps.googleusercontent.com", 
             client_secret: "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",
-            redirect_uri: "http://localhost:4000/api/auth",
+            redirect_uri: "http://localhost:6006/",
             grant_type: 'authorization_code'
            
         }), {
