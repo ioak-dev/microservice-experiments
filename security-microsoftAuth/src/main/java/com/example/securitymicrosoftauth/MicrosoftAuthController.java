@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class MicrosoftAuthController {
 
+  @CrossOrigin(origins = "https://graph.microsoft.com/v1.0/me")
   @PostMapping("/userinfo")
   public ResponseEntity<?> getUserInfo(@RequestParam String accessToken) {
     log.info("Received access token: {}", accessToken);
