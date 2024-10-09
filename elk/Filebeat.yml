@@ -1,9 +1,0 @@
-filebeat.inputs:
-  - type: docker
-    containers.ids:
-      - "*"
-    json.message_key: log
-    json.keys_under_root: true
-
-output.logstash:
-  hosts: ["logstash:5000"]
