@@ -40,6 +40,9 @@ dependencies {
 
 	//https://mvnrepository.com/artifact/de.codecentric/spring-boot-admin-starter-server
 	implementation 'de.codecentric:spring-boot-admin-starter-server:3.3.0'
+	testImplementation 'junit:junit:4.13.2'
+	testImplementation 'org.springframework:spring-test:6.1.13'
+
 }
 
 tasks.named('test') {
