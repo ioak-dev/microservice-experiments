@@ -1,6 +1,7 @@
 package com.hexagonal.user.application.service;
 
 import com.hexagonal.user.application.port.UserRepository;
+import com.hexagonal.user.domain.exception.UserNotFoundException;
 import com.hexagonal.user.domain.model.User;
 import com.hexagonal.user.domain.service.UserService;
 import java.time.ZonedDateTime;
@@ -10,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -25,26 +27,26 @@ public class UserApplicationServiceImpl implements UserService{
     this.userService=userService;
   }
   @Override
-  public User createUser(User user) {
+  public User createUser(User user, String tenantId) {
     log.info("Creating user with details "+ ZonedDateTime.now());
-    if(user.getId()==null){
+    /*if(user.getId()==null){
       Random random = new Random();
-      int id = 100000 + random.nextInt(900000);
+      int id = 1000000 + random.nextInt(900000);
       user.setId(String.valueOf(id));
-    }
-    return userRepository.save(user);
+    }*/
+    return userRepository.save(user,tenantId);
   }
 
   @Override
-  public User getUserById(String id) {
+  public User getUserById(String id, String tenantId) {
     log.info("Fetching user details with id "+ id);
-    return userRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    return userRepository.findById(id,tenantId).orElseThrow(() -> new UserNotFoundException("User not found with id "+ id));
   }
 
   @Override
-  public List<User> getAllUsers() {
+  public List<User> getAllUsers(String tenantId) {
     log.info("Fetching all user details");
-    return userRepository.findAll();
+    return userRepository.findAll(tenantId);
   }
 
 }

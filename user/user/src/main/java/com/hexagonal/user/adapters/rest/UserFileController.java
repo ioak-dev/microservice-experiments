@@ -6,13 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,9 +26,8 @@ public class UserFileController {
   }
 
   @PostMapping(value = "/upload")
-  public ResponseEntity<String> uploadFile(@PathVariable String userId)
+  public ResponseEntity<String> uploadFile(@PathVariable String userId, @RequestParam("file") MultipartFile file)
       throws IOException {
-    MultipartFile file = getFileAsMultipartFile("10101017640450_Sep2024.pdf");
     String fileName = localFileStoragePort.uploadFile(file, userId);
     return ResponseEntity.ok("File uploaded: " + fileName);
   }
@@ -44,17 +42,5 @@ public class UserFileController {
   public ResponseEntity<Void> deleteFile(@PathVariable String userId, @PathVariable String fileName) {
     localFileStoragePort.deleteFile(fileName, userId);
     return ResponseEntity.noContent().build();
-  }
-
-  public MultipartFile getFileAsMultipartFile(String fileName) throws IOException {
-    ClassPathResource resource = new ClassPathResource(fileName);
-    Path path = resource.getFile().toPath();
-    byte[] content = Files.readAllBytes(path);
-    return new MockMultipartFile(
-        fileName,
-        resource.getFilename(),
-        Files.probeContentType(path),
-        content
-    );
   }
 }

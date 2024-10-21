@@ -21,20 +21,20 @@ public class InMemoryUserRepositoryAdapter implements UserRepository {
 
   private final Map<String, User> inMemoryDatabase = new HashMap<>();
   @Override
-  public Optional<User> findById(String id) {
+  public Optional<User> findById(String id,String tenantId) {
     log.info("Fetching user details with id from in memory "+ id);
     return Optional.ofNullable(inMemoryDatabase.get(id));
   }
 
   @Override
-  public User save(User user) {
+  public User save(User user,String tenantId) {
     log.info("Saving user details in memory db");
     inMemoryDatabase.put(user.getId(), user);
     return user;
   }
 
   @Override
-  public List<User> findAll() {
+  public List<User> findAll(String tenantId) {
     log.info("Fetching user details from in memory");
     List<User> users=new ArrayList<>();
     for(Map.Entry<String,User> entity:inMemoryDatabase.entrySet()){

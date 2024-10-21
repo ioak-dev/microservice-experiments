@@ -1,8 +1,7 @@
 package com.hexagonal.user.domain.model;
 
-
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -11,13 +10,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@Document(collection = "user")
-public class User {
+@Document
+public class Tenant {
 
-
- @Id
+  @Id
   private String id;
+  @NotBlank
   private String name;
-  private String email;
+
 }

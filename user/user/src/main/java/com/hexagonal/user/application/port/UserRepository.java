@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
-  Optional<User> findById(String id);
-  User save(User user);
+  Optional<User> findById(String id, String tenantId);
+  User save(User user, String tenantId);
 
-  List<User> findAll();
+  List<User> findAll(String tenantId);
 
 }
