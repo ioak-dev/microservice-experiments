@@ -13,6 +13,9 @@ import com.hexagonal.user.infrastructure.config.S3Config;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,28 +37,30 @@ public class S3FileStorageAdapter implements LocalFileStoragePort {
 
   @Autowired
   private S3Config s3Config;
-
+  private final ExecutorService executorService = Executors.newFixedThreadPool(5);
   @Override
-  public String uploadFile(MultipartFile file, String userId) {
-    try {
-      if (bucketName != null) {
-        File fileToUpload = convertMultiPartFileToFile(file);
-        StringBuilder url = new StringBuilder().append("/").append(fileToUpload.getName());
-        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, url.toString(),
-            fileToUpload);
-        s3Config.getAmazonS3Cient().putObject(putObjectRequest);
-        if (fileToUpload.exists()) {
-          fileToUpload.delete();
+  public Future<String> uploadFile(MultipartFile file, String userId) {
+    return executorService.submit(() -> {
+      try {
+        if (bucketName != null) {
+          File fileToUpload = convertMultiPartFileToFile(file);
+          StringBuilder url = new StringBuilder().append("/").append(fileToUpload.getName());
+          PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, url.toString(), fileToUpload);
+          s3Config.getAmazonS3Cient().putObject(putObjectRequest);
+
+          if (fileToUpload.exists()) {
+            fileToUpload.delete();
+          }
+          log.info("Deleted the file from root directory");
+
+          return s3Config.getAmazonS3Cient().getUrl(bucketName, url.toString()).toString();
         }
-        log.info("Deleted the file from root directory");
-        return String.valueOf(
-            s3Config.getAmazonS3Cient().getUrl(bucketName, url.toString()));
+      } catch (Exception e) {
+        log.error("Error occurred during file upload", e);
+        throw new RuntimeException(e.getMessage());
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-    }
-    return userId;
+      return userId;
+    });
   }
 
   private File convertMultiPartFileToFile(final MultipartFile multipartFile) {
@@ -68,18 +73,24 @@ public class S3FileStorageAdapter implements LocalFileStoragePort {
     return file;
   }
   @Override
-  public byte[] downloadFile(String fileName, String userId) {
-    try {
-      com.amazonaws.services.s3.model.S3Object s3Object = s3Config.getAmazonS3Cient().getObject(bucketName, fileName);
-      return IOUtils.toByteArray(s3Object.getObjectContent());
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to download file from S3", e);
-    }
+  public Future<byte[]> downloadFile(String fileName, String userId) {
+    return executorService.submit(() -> {
+      try {
+        com.amazonaws.services.s3.model.S3Object s3Object = s3Config.getAmazonS3Cient().getObject(bucketName, fileName);
+        return IOUtils.toByteArray(s3Object.getObjectContent());
+      } catch (IOException e) {
+        log.error("Failed to download file from S3", e);
+        throw new RuntimeException("Failed to download file from S3", e);
+      }
+    });
   }
 
   @Override
-  public void deleteFile(String fileName, String userId) {
-    s3Config.getAmazonS3Cient().deleteObject(bucketName, fileName);
+  public Future<Void> deleteFile(String fileName, String userId) {
+    return executorService.submit(() -> {
+      s3Config.getAmazonS3Cient().deleteObject(bucketName, fileName);
+      return null;
+    });
   }
 
 }
