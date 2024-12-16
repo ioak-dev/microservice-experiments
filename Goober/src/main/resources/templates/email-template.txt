@@ -1,0 +1,16 @@
+Hello User,
+
+Your journey is booked and captain will reach your pickup location shortly.
+
+Total distance in km is : {total}
+
+total price is: {price}
+
+Your otp for the journey is 5838.
+
+Note: Keep your otp safe and do not share with anyone.
+
+Best regards,
+Team Goober
++00-000000000
+GooberMailSupportTeam.in
