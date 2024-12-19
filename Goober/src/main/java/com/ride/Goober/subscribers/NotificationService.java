@@ -15,12 +15,14 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
@@ -42,20 +44,64 @@ public class NotificationService {
   @Autowired
   private SqsTemplate sqsTemplate;
 
+  @Autowired
+  private StringRedisTemplate redisTemplate;
+
+  @Value("${event.deduplication.ttl}")
+  private long deduplicationTtl;
+
   @SqsListener("${aws.sqs.notification.queue}")
   public void sendNotifications(Object notificationEvent) {
-    if(notificationEvent instanceof DriverFoundEvent){
-      String userId= ((DriverFoundEvent) notificationEvent).getUserId();
-      RideRequestEvent rideRequestEvent=new RideRequestEvent();
-      rideRequestEvent.setDropOffLocation(((DriverFoundEvent) notificationEvent).getDropOff());
-      rideRequestEvent.setPickupLocation(((DriverFoundEvent) notificationEvent).getPickup());
-      sendMailTemplate(userId, rideRequestEvent);
-      sqsTemplate.send(sqsSendOptions -> sqsSendOptions
-          .queue("pricingQueue")
-          .payload(rideRequestEvent));
-    } else if (notificationEvent instanceof DriverNotFoundEvent) {
-      sendMailTemplate(((DriverNotFoundEvent) notificationEvent).getUserId(),new RideRequestEvent());
+    String eventId = extractEventId(notificationEvent);
+
+    if (isDuplicate(eventId)) {
+      log.info("Duplicate notification event detected: {}", eventId);
+      return;
     }
+    try {
+      if (notificationEvent instanceof DriverFoundEvent) {
+        DriverFoundEvent event = (DriverFoundEvent) notificationEvent;
+        sendMailTemplate(event.getUserId(), new RideRequestEvent(
+            event.getUserId(),
+            event.getPickup(),
+            event.getDropOff(),
+            null,
+            eventId));
+        sqsTemplate.send(sqsSendOptions -> sqsSendOptions
+            .queue("pricingQueue")
+            .payload(new RideRequestEvent(
+                event.getUserId(),
+                event.getPickup(),
+                event.getDropOff(),
+                null,
+                eventId)));
+      } else if (notificationEvent instanceof DriverNotFoundEvent) {
+        DriverNotFoundEvent event = (DriverNotFoundEvent) notificationEvent;
+        sendMailTemplate(event.getUserId(), null);
+      }
+    } finally {
+      markEventProcessed(eventId);
+    }
+  }
+
+  private String extractEventId(Object event) {
+    if (event instanceof DriverFoundEvent) {
+      return ((DriverFoundEvent) event).getEventId();
+    } else if (event instanceof DriverNotFoundEvent) {
+      return ((DriverNotFoundEvent) event).getEventId();
+    }
+    return null;
+  }
+
+  private boolean isDuplicate(String eventId) {
+    String redisKey = "notificationQueue:" + eventId;
+    Boolean exists = redisTemplate.hasKey(redisKey);
+    return exists != null && exists;
+  }
+
+  private void markEventProcessed(String eventId) {
+    String redisKey = "notificationQueue:" + eventId;
+    redisTemplate.opsForValue().set(redisKey, "processed", Duration.ofSeconds(deduplicationTtl));
   }
 
 

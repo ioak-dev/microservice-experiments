@@ -17,5 +17,6 @@ public class RideRequestEvent {
   private String pickupLocation;
   private String dropOffLocation;
   private String rideType;
+  private String EventId;
 
 }

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class PublisherEvents {
 
@@ -27,6 +26,8 @@ public class PublisherEvents {
     private String pickup;
 
     private String dropOff;
+    private String EventId;
+
   }
 
   @Data
@@ -34,6 +35,8 @@ public class PublisherEvents {
   public static class DriverNotFoundEvent {
     private String userId;
     private String status;
+    private String EventId;
+
   }
 
   @Data
