@@ -1,4 +1,4 @@
-package com.example.securitymicrosoftauth;
+package com.example.microsoftauth;
 
 import java.util.List;
 import lombok.Getter;

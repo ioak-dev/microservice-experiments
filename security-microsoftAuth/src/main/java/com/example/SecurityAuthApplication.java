@@ -1,13 +1,13 @@
-package com.example.securitymicrosoftauth;
+package com.example;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SecurityMicrosoftAuthApplication {
+public class SecurityAuthApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SecurityMicrosoftAuthApplication.class, args);
+		SpringApplication.run(SecurityAuthApplication.class, args);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.example.securitymicrosoftauth;
+package com.example.microsoftauth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
