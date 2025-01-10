@@ -13,7 +13,7 @@ public class GoogleAuthService {
   @Autowired
   private GoogleAuthUtil googleAuthUtil;
 
-  public Map<String, Object> authenticateUser(String code) throws Exception {
+  public UserDetails authenticateUser(String code) throws Exception {
     Map<String, String> tokens = googleAuthUtil.exchangeCodeForToken(code);
     String idToken = tokens.get("idToken");
     String accessToken = tokens.get("accessToken");
@@ -28,10 +28,19 @@ public class GoogleAuthService {
     headers.setBearerAuth(accessToken);
 
     var request = new org.springframework.http.HttpEntity<>(headers);
-    var response = restTemplate.exchange(userInfoUrl, org.springframework.http.HttpMethod.GET, request, Map.class);
+    var response = restTemplate.exchange(userInfoUrl, org.springframework.http.HttpMethod.GET, request, UserDetail.class);
 
     if (response.getStatusCode().is2xxSuccessful()) {
-      return response.getBody();
+      UserDetail userDetail = response.getBody();
+      if (userDetail != null) {
+        UserDetails userDetails = new UserDetails();
+        userDetails.setMessage("Authentication successful");
+        userDetails.setUserDetails(userDetail);
+        return userDetails;
+      }
+      else {
+        throw new RuntimeException("User details not found");
+      }
     } else {
       throw new RuntimeException("Failed to fetch user details from Google");
     }
