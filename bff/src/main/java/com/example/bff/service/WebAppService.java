@@ -1,8 +1,5 @@
 package com.example.bff.service;
 
-import com.example.bff.client.CartClient;
-import com.example.bff.client.ProductClient;
-import com.example.bff.client.UserClient;
 import com.example.bff.dto.CartDTO;
 import com.example.bff.dto.ProductDTO;
 import com.example.bff.dto.UserDTO;
@@ -14,22 +11,17 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class WebAppService {
 
-  private final UserClient userClient;
-  private final ProductClient productClient;
-  private final CartClient cartClient;
+  private final CacheService cacheService;
 
-  public WebAppService(UserClient userClient, ProductClient productClient, CartClient cartClient) {
-    this.userClient = userClient;
-    this.productClient = productClient;
-    this.cartClient = cartClient;
+  public WebAppService(CacheService cacheService) {
+    this.cacheService = cacheService;
   }
 
   public WebAppDTO getAggregatedData(Long userId, Long productId, Long orderId) {
-    log.debug("Get data for Web app");
-    UserDTO user = userClient.getUserById(userId);
-    ProductDTO product = productClient.getProductById(productId);
-    CartDTO cart = cartClient.getCartItemsById(orderId);
+    log.info("Fetching aggregated data for userId={}, productId={}, orderId={}", userId, productId, orderId);
+    UserDTO user = cacheService.getUser(userId);
+    ProductDTO product = cacheService.getProduct(productId);
+    CartDTO cart = cacheService.getCart(orderId);
     return new WebAppDTO(user, product, cart);
   }
-
 }
